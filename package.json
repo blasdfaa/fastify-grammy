@@ -1,0 +1,40 @@
+{
+  "name": "fastify-grammy",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npm run lint && npm run unit",
+    "lint": "standard && npm run lint:typescript",
+    "lint:typescript": "ts-standard",
+    "test:unit": "tap",
+    "unit": "node --test",
+    "release": "npm run test && changelogen --release && npm publish && git push --follow-tags"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "types": "index.d.ts",
+  "dependencies": {
+    "@fastify/error": "^4.0.0",
+    "fastify-plugin": "^4.0.0",
+    "grammy": "^1.31.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.4",
+    "changelogen": "^0.5.7",
+    "fastify": "^5.0.0",
+    "fastify-tsconfig": "^2.0.0",
+    "standard": "^17.0.0",
+    "tap": "^19.2.5",
+    "ts-standard": "^12.0.1",
+    "tsd": "^0.30.4",
+    "typescript": "5.2.2"
+  },
+  "tsd": {
+    "directory": "test"
+  }
+}
