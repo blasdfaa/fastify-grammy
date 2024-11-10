@@ -1,6 +1,6 @@
 # fastify-grammy
 
-[![CI](https://github.com/blasdfaa/fastify-grammy/workflows/CI/badge.svg)](https://github.com/blasdfaa/fastify-grammy/actions/workflows/ci.yml)
+[![CI](https://github.com/blasdfaa/fastify-grammy/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/blasdfaa/fastify-grammy/actions/workflows/ci.yml)
 [![NPM version](https://img.shields.io/npm/v/fastify-grammy.svg?style=flat)](https://www.npmjs.com/package/fastify-grammy)
 
 ## 🚧 In development
