@@ -1,27 +1,58 @@
 name: CI workflow
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
+      - renovate/*
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔠 Lint project
+        run: pnpm lint
+
   test:
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
-        os: [ubuntu-latest, windows-latest]
+        node: [lts/*]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: Install Dependencies
-      run: npm install --ignore-scripts
-    - name: Test
-      run: npm run test
+      - uses: actions/checkout@v4
+      - run: corepack enable
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🛠 Build project
+        run: pnpm build
+
+      - name: 🧪 Test project
+        run: pnpm test
+
+      - name: 🟩 Coverage
+        uses: codecov/codecov-action@v4
