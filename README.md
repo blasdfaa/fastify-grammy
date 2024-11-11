@@ -11,7 +11,7 @@ Supports Fastify versions `5.x`
 
 ## Install
 
-```
+```bash
 # npm
 npm install fastify-grammy
 
@@ -36,19 +36,42 @@ fastify.register(fastifyGrammy, {
 fastify.listen({ port: 3000 })
 ```
 
+Before using `fastify-grammy`, make sure to check the [Grammy](https://grammy.dev/guide/getting-started) documentation for more information about how to create and configure a Telegram bot.
+
+## Middlewares
+
+You can use middlewares with `fastify-grammy` by passing them in the options object when registering the plugin.
+
+```ts
+import { session } from 'grammy'
+
+fastify.register(fastifyGrammy, {
+  token: 'your-tg-bot-token',
+  middlewares: [session()]
+})
+```
+
 ## Using with TypeScript
+
+To use `fastify-grammy` with TypeScript, you need to extend the Fastify instance with the FastifyGrammyBot type.
+
+Here's an example for a single instance:
 
 ```ts
 import type { FastifyGrammyBot } from 'fastify-grammy'
 
-// for single instance
 declare module 'fastify' {
   interface FastifyInstance {
     grammy: FastifyGrammyBot
   }
 }
+```
 
-// for multiple instances
+And here's an example for multiple instances:
+
+```ts
+import type { FastifyGrammyBot } from 'fastify-grammy'
+
 declare module 'fastify' {
   interface FastifyInstance {
     grammy: {
@@ -61,6 +84,8 @@ declare module 'fastify' {
 
 ## Acknowledgements
 
+This library is based on the [Grammy](https://grammy.dev) library.
+
 ## License
 
-Licensed under [MIT](./LICENSE).<br/>
+Licensed under [MIT](./LICENSE).
