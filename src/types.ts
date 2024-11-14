@@ -1,5 +1,5 @@
 import type { FastifyPluginCallback } from 'fastify'
-import type { BotConfig, Middleware } from 'grammy'
+import type { BotConfig, Middleware, PollingOptions } from 'grammy'
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -14,4 +14,5 @@ export interface FastifyGrammyOptions {
   name?: string
   middlewares?: Middleware[]
   config?: BotConfig<any>
+  pollingOptions?: PollingOptions
 }

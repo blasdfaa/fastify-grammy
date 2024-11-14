@@ -13,7 +13,7 @@ const plugin: FastifyPluginAsync<FastifyGrammyOptions> = async (
   fastify,
   options,
 ) => {
-  const { name, token } = options
+  const { name, token, pollingOptions } = options
 
   if (!token) {
     throw new MissingBotTokenError()
@@ -46,7 +46,13 @@ const plugin: FastifyPluginAsync<FastifyGrammyOptions> = async (
   fastify.addHook('onClose', () => bot.stop())
 
   bot
-    .start({ onStart: () => fastify.log.info('Bot started') })
+    .start({
+      ...pollingOptions,
+      onStart: (botInfo) => {
+        fastify.log.info('Bot started')
+        pollingOptions?.onStart?.(botInfo)
+      },
+    })
     .catch(() => {})
 }
 
