@@ -1,4 +1,4 @@
-import type { FastifyPluginCallback } from 'fastify'
+import type { FastifyPluginAsync } from 'fastify'
 import type { BotConfig, Middleware, PollingOptions } from 'grammy'
 
 declare module 'fastify' {
@@ -7,7 +7,7 @@ declare module 'fastify' {
   }
 }
 
-export type FastifyGrammy = FastifyPluginCallback<FastifyGrammyOptions>
+export type FastifyGrammy = FastifyPluginAsync<FastifyGrammyOptions>
 
 export interface FastifyGrammyOptions {
   token: string
