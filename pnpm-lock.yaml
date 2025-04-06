@@ -12,14 +12,14 @@ importers:
   .:
     dependencies:
       '@fastify/error':
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^4.1.0
+        version: 4.1.0
       fastify-plugin:
         specifier: 5.0.1
         version: 5.0.1
       grammy:
-        specifier: ^1.31.3
-        version: 1.31.3(encoding@0.1.13)
+        specifier: ^1.35.1
+        version: 1.35.1(encoding@0.1.13)
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^3.9.1
@@ -493,8 +493,8 @@ packages:
   '@fastify/ajv-compiler@4.0.1':
     resolution: {integrity: sha512-DxrBdgsjNLP0YM6W5Hd6/Fmj43S8zMKiFJYgi+Ri3htTGAowPVG/tG1wpnWLMjufEnehRivUCKZ1pLDIoZdTuw==}
 
-  '@fastify/error@4.0.0':
-    resolution: {integrity: sha512-OO/SA8As24JtT1usTUTKgGH7uLvhfwZPwlptRi2Dp5P4KKmJI3gvsZ8MIHnNwDs4sLf/aai5LzTyl66xr7qMxA==}
+  '@fastify/error@4.1.0':
+    resolution: {integrity: sha512-KeFcciOr1eo/YvIXHP65S94jfEEqn1RxTRBT1aJaHxY5FK0/GDXYozsQMMWlZoHgi8i0s+YtrLsgj/JkUUjSkQ==}
 
   '@fastify/fast-json-stringify-compiler@5.0.1':
     resolution: {integrity: sha512-f2d3JExJgFE3UbdFcpPwqNUEoHWmt8pAKf8f+9YuLESdefA0WgqxeT6DrGL4Yrf/9ihXNSKOqpjEmurV405meA==}
@@ -502,8 +502,8 @@ packages:
   '@fastify/merge-json-schemas@0.1.1':
     resolution: {integrity: sha512-fERDVz7topgNjtXsJTTW1JKLy0rhuLRcquYqNR9rF7OcVpCa2OVW49ZPDIhaRRCaUuvVxI+N416xUoF76HNSXA==}
 
-  '@grammyjs/types@3.15.0':
-    resolution: {integrity: sha512-XQHJNlF6AuJgVPYL8mEWrYk4Pg/FoP9PryTVSObtf/SWRIk0dCBkIwSaGGoXa1VDrLVWl/dIP79FgS2acJJjdg==}
+  '@grammyjs/types@3.19.0':
+    resolution: {integrity: sha512-N0MS+RJG+AGSNuka1GWVj88oyK1oti4I0eQq6jGo4hic3P9MwFfnHjGQuIExZ3tlJUrZYwC/T7gk4Tu3+guJyg==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -1546,8 +1546,8 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  grammy@1.31.3:
-    resolution: {integrity: sha512-o1OlFzbTt4mvQVCTpcpdedAYrS5DOeal9IBf3FJ7l0A6FbLE9zuPuXa4XFiPvYCmRMVR7f+qcoTZyOpeYg9Xvw==}
+  grammy@1.35.1:
+    resolution: {integrity: sha512-6kNMODaXVj0R+dqYcHqMyjOURsCUFGvVkd7z/dDO1H1cqrGW/kyAFc4oETUKkcyUN/X80N0DchNVuc2JmTPxPQ==}
     engines: {node: ^12.20.0 || >=14.13.1}
 
   graphemer@1.4.0:
@@ -3087,7 +3087,7 @@ snapshots:
       ajv-formats: 3.0.1(ajv@8.17.1)
       fast-uri: 3.0.3
 
-  '@fastify/error@4.0.0': {}
+  '@fastify/error@4.1.0': {}
 
   '@fastify/fast-json-stringify-compiler@5.0.1':
     dependencies:
@@ -3097,7 +3097,7 @@ snapshots:
     dependencies:
       fast-deep-equal: 3.1.3
 
-  '@grammyjs/types@3.15.0': {}
+  '@grammyjs/types@3.19.0': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -3506,7 +3506,7 @@ snapshots:
 
   avvio@9.1.0:
     dependencies:
-      '@fastify/error': 4.0.0
+      '@fastify/error': 4.1.0
       fastq: 1.17.1
 
   balanced-match@1.0.2: {}
@@ -4167,7 +4167,7 @@ snapshots:
   fastify@5.1.0:
     dependencies:
       '@fastify/ajv-compiler': 4.0.1
-      '@fastify/error': 4.0.0
+      '@fastify/error': 4.1.0
       '@fastify/fast-json-stringify-compiler': 5.0.1
       abstract-logging: 2.0.1
       avvio: 9.1.0
@@ -4295,9 +4295,9 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  grammy@1.31.3(encoding@0.1.13):
+  grammy@1.35.1(encoding@0.1.13):
     dependencies:
-      '@grammyjs/types': 3.15.0
+      '@grammyjs/types': 3.19.0
       abort-controller: 3.0.0
       debug: 4.3.7
       node-fetch: 2.7.0(encoding@0.1.13)
