@@ -30,7 +30,11 @@ function applicationFor(fastify: FastifyInstance): ApplicationStartup {
     // the server and the application-wide ready barrier (child ready is Avvio).
     let root = fastify
     while (!Object.hasOwn(root, 'server')) root = Object.getPrototypeOf(root)
-    app = { root, observing: false, cancel: new Set() }
+    app = {
+      root,
+      observing: false,
+      cancel: new Set(),
+    }
     applications.set(fastify.server, app)
   }
   return app
@@ -60,9 +64,17 @@ export function installManagedLifecycle(
     // BotError contains a whole Context (and its token). Never serialize it.
     const redact = (text: string) => text.replaceAll(entry.bot.token, '[REDACTED]')
     const summary = error instanceof Error
-      ? { name: redact(error.name), message: redact(error.message) }
-      : { message: redact(String(error)) }
-    fastify.log.error({ grammy: { name, mode }, err: summary }, message)
+      ? {
+          name: redact(error.name),
+          message: redact(error.message),
+        }
+      : {
+          message: redact(String(error)),
+        }
+    fastify.log.error({
+      grammy: { name, mode },
+      err: summary,
+    }, message)
   }
   function reportError(error: unknown) {
     log(error, 'Telegram bot execution failed')
@@ -152,7 +164,10 @@ export function installManagedLifecycle(
     abortController.abort()
     if (entry.status.state !== 'failed')
       entry.status = { mode, state: 'stopping' }
-    const results = await Promise.allSettled([stop(), startup])
+    const results = await Promise.allSettled([
+      stop(),
+      startup,
+    ])
     entry.status = { mode, state: 'stopped' }
     const stopError = results[0]
     if (stopError.status === 'rejected')

@@ -22,7 +22,15 @@ const plugin: FastifyPluginAsync<RuntimeOptions> = async (fastify, options) => {
     release()
   })
   try {
-    const entry = { bot, status: { mode, state: mode === 'manual' ? 'manual' as const : 'registered' as const } }
+    const entry = {
+      bot,
+      status: {
+        mode,
+        state: mode === 'manual'
+          ? 'manual' as const
+          : 'registered' as const,
+      },
+    }
     registryFor(fastify).add(name, entry)
     if (options.mode === 'polling')
       installManagedLifecycle(fastify, entry, options, context => createPollingController(context, options.pollingOptions))

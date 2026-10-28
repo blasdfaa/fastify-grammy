@@ -34,7 +34,9 @@ export class Registry implements FastifyGrammyRegistry {
   }
 
   status(name: FastifyGrammyName): FastifyGrammyStatus {
-    return { ...this.find(name).status }
+    return {
+      ...this.find(name).status,
+    }
   }
 }
 
@@ -43,8 +45,12 @@ export function registryFor(fastify: FastifyInstance): Registry {
   const existing = scopeRegistries.get(fastify)
   if (existing)
     return existing
-  const inherited = fastify.hasDecorator('grammy') ? fastify.grammy : undefined
-  const registry = new Registry(inherited instanceof Registry ? inherited : undefined)
+  const inherited = fastify.hasDecorator('grammy')
+    ? fastify.grammy
+    : undefined
+  const registry = new Registry(inherited instanceof Registry
+    ? inherited
+    : undefined)
   fastify.decorate('grammy', registry)
   scopeRegistries.set(fastify, registry)
   return registry

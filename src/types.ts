@@ -27,10 +27,10 @@ interface ManagedOptions {
   startupTimeoutMs?: number
   onError?: (event: FastifyGrammyError, fastify: FastifyInstance) => void | Promise<void>
 }
-type ModeOptions =
-  | { mode: 'manual' }
-  | ({ mode: 'polling', pollingOptions?: PollingOptions } & ManagedOptions)
-  | ({ mode: 'webhook', path: string, secretToken: string, prefix?: string } & ManagedOptions)
+type ModeOptions
+  = | { mode: 'manual' }
+    | ({ mode: 'polling', pollingOptions?: PollingOptions } & ManagedOptions)
+    | ({ mode: 'webhook', path: string, secretToken: string, prefix?: string } & ManagedOptions)
 
 export type FastifyGrammyOptions = {
   [K in FastifyGrammyName]: { bot: BotAt<K> } & (K extends 'default' ? { name?: K } : { name: K }) & ModeOptions
