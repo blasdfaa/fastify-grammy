@@ -1,2 +1,15 @@
+shellEmulator: true
+strictDepBuilds: true
+verifyDepsBeforeRun: error
+
 packages:
   - playground
+
+# Patch transitive tooling without changing its public extraction/rendering APIs.
+overrides:
+  giget>tar: 7.5.22
+  micromark-extension-math>katex: 0.19.1
+
+allowBuilds:
+  esbuild: true
+  lefthook: false

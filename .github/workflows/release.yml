@@ -1,26 +1,36 @@
-name: release
-
-permissions:
-  contents: write
+name: Release notes
 
 on:
   push:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - name: Set node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: 20
+          node-version-file: .node-version
 
-      - run: npx changelogithub
+      - uses: pnpm/action-setup@v6.1.0
+        with:
+          cache: true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate release
+        run: pnpm check
+
+      - name: Create release notes
+        run: pnpm release:notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

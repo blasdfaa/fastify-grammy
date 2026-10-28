@@ -5,7 +5,8 @@
     "dev": "fastify start index.js -L -l -P -w"
   },
   "dependencies": {
-    "fastify": "latest",
-    "fastify-grammy": "latest"
+    "fastify": "5.12.7",
+    "fastify-grammy": "workspace:*",
+    "grammy": "^1.46.0"
   }
 }

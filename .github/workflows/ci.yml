@@ -1,4 +1,4 @@
-name: CI workflow
+name: CI
 
 on:
   pull_request:
@@ -9,47 +9,36 @@ on:
       - main
       - renovate/*
 
+permissions:
+  contents: read
+
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - run: corepack enable
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: pnpm
-
-      - name: 📦 Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 🔠 Lint project
-        run: pnpm lint
-
-  test:
+  check:
     runs-on: ${{ matrix.os }}
-
     strategy:
+      fail-fast: false
       matrix:
-        node: [lts/*]
+        node: [22, 24, 26]
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v4
-      - run: corepack enable
+      - uses: actions/checkout@v7.0.1
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: pnpm
+          node-version: ${{ matrix.node }}
 
-      - name: 📦 Install dependencies
+      - uses: pnpm/action-setup@v6.1.0
+        with:
+          cache: true
+
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 🛠 Build project
-        run: pnpm build
+      - name: Build, lint, and test
+        run: pnpm check
 
-      - name: 🧪 Test project
-        run: pnpm test
+      - name: Audit dependencies
+        if: matrix.node == 24 && matrix.os == 'ubuntu-latest'
+        run: pnpm audit
