@@ -5,6 +5,15 @@ export function createPollingController(context: ManagedContext, options?: Polli
   let lifetime: Promise<void> | undefined
   let stopping = false
   let shutdown: Promise<void> | undefined
+  let startupDeletionFinished = false
+
+  context.bot.api.config.use((previous, method, payload, signal) => {
+    // grammY can retry startup deletion after stop clears its abort controller.
+    // Keep that retry behind our cancellation guard, preserving all other calls.
+    if (method === 'deleteWebhook' && !startupDeletionFinished)
+      context.signal.throwIfAborted()
+    return previous(method, payload, signal)
+  })
 
   return {
     async start() {
@@ -18,6 +27,7 @@ export function createPollingController(context: ManagedContext, options?: Polli
       lifetime = context.bot.start({
         ...options,
         onStart: async (info) => {
+          startupDeletionFinished = true
           context.signal.throwIfAborted()
           await options?.onStart?.(info)
           context.signal.throwIfAborted()

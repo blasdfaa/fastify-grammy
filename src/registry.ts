@@ -9,7 +9,11 @@ export interface Entry {
 
 export class Registry implements FastifyGrammyRegistry {
   private readonly entries = new Map<string, Entry>()
-  constructor(private readonly parent?: Registry) {}
+  private readonly children = new Set<Registry>()
+
+  constructor(private readonly parent?: Registry) {
+    parent?.children.add(this)
+  }
 
   find(name: string): Entry {
     const entry = this.entries.get(name) ?? this.parent?.lookup(name)
@@ -22,8 +26,18 @@ export class Registry implements FastifyGrammyRegistry {
     return this.entries.get(name) ?? this.parent?.lookup(name)
   }
 
+  private containsInSubtree(name: string): boolean {
+    if (this.entries.has(name))
+      return true
+    for (const child of this.children) {
+      if (child.containsInSubtree(name))
+        return true
+    }
+    return false
+  }
+
   add(name: string, entry: Entry): void {
-    if (this.lookup(name))
+    if (this.lookup(name) || this.containsInSubtree(name))
       throw new NameAlreadyRegisteredError(name)
     this.entries.set(name, entry)
   }
@@ -40,18 +54,36 @@ export class Registry implements FastifyGrammyRegistry {
   }
 }
 
-const scopeRegistries = new WeakMap<FastifyInstance, Registry>()
-export function registryFor(fastify: FastifyInstance): Registry {
+interface ScopeRegistry {
+  registry: Registry
+  exposed: boolean
+}
+const scopeRegistries = new WeakMap<FastifyInstance, ScopeRegistry>()
+
+function ensureRegistry(fastify: FastifyInstance): ScopeRegistry {
   const existing = scopeRegistries.get(fastify)
   if (existing)
     return existing
-  const inherited = fastify.hasDecorator('grammy')
-    ? fastify.grammy
-    : undefined
-  const registry = new Registry(inherited instanceof Registry
-    ? inherited
-    : undefined)
-  fastify.decorate('grammy', registry)
-  scopeRegistries.set(fastify, registry)
-  return registry
+  // Allocate the complete scope chain before linking a child. An ancestor may
+  // receive its first bot later; its live store must already be connected.
+  const parent = Object.hasOwn(fastify, 'server')
+    ? undefined
+    : ensureRegistry(Object.getPrototypeOf(fastify)).registry
+  const scope = {
+    registry: new Registry(parent),
+    exposed: false,
+  }
+  scopeRegistries.set(fastify, scope)
+  return scope
+}
+
+export function registryFor(fastify: FastifyInstance): Registry {
+  const scope = ensureRegistry(fastify)
+  if (!scope.exposed) {
+    // Private ancestor stores do not expose a decorator until that exact scope
+    // registers a bot. Inherited decorators do not imply local exposure.
+    fastify.decorate('grammy', scope.registry)
+    scope.exposed = true
+  }
+  return scope.registry
 }
