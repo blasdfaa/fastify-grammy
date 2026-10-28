@@ -14,7 +14,13 @@ const plugin: FastifyPluginAsync<RuntimeOptions> = async (fastify, options) => {
     throw new InvalidOptionsError('A prepared grammY Bot is required')
   if (mode !== 'manual' && mode !== 'polling' && mode !== 'webhook')
     throw new InvalidOptionsError('mode must be polling, webhook, or manual')
+  if (mode !== 'manual' && options.startupTimeoutMs !== undefined && (!Number.isFinite(options.startupTimeoutMs) || options.startupTimeoutMs <= 0))
+    throw new InvalidOptionsError('startupTimeoutMs must be a finite positive number')
   const release = claimBot(fastify, bot, mode !== 'manual')
+  // onClose runs in reverse registration order: release after managed drain.
+  fastify.addHook('onClose', async () => {
+    release()
+  })
   try {
     const entry = { bot, status: { mode, state: mode === 'manual' ? 'manual' as const : 'registered' as const } }
     registryFor(fastify).add(name, entry)
@@ -27,9 +33,6 @@ const plugin: FastifyPluginAsync<RuntimeOptions> = async (fastify, options) => {
     release()
     throw error
   }
-  fastify.addHook('onClose', async () => {
-    release()
-  })
 }
 
 export const fastifyGrammy = fp(plugin, { fastify: '5.x', name: 'fastify-grammy' }) as FastifyGrammy

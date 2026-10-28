@@ -1,6 +1,6 @@
 import type { BotConfig, Context } from 'grammy'
 
-export const botInfo = { id: 42, is_bot: true, first_name: 'Offline', username: 'offline_bot', can_join_groups: true, can_read_all_group_messages: false, supports_inline_queries: false } as const
+export const botInfo = { id: 42, is_bot: true, first_name: 'Offline', username: 'offline_bot', can_join_groups: true, can_read_all_group_messages: false, supports_inline_queries: false, can_connect_to_business: false, has_main_web_app: false } as const
 export function deferred<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void
   let reject!: (error?: unknown) => void
@@ -53,6 +53,8 @@ export function telegram(handlers: Record<string, TelegramHandler> = {}) {
     else {
       throw new Error(`Unexpected Telegram API method: ${method}`)
     }
+    if (result instanceof Response)
+      return result
     return new Response(JSON.stringify({ ok: true, result }), { status: 200, headers: { 'content-type': 'application/json' } })
   }
   return { fetch, requests }

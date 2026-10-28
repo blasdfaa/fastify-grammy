@@ -8,7 +8,7 @@ import { botInfo, deferred, telegram } from './helpers/telegram'
 
 interface CustomContext extends Context { marker: string }
 
-declare module '../src/types' {
+declare module '../src' {
   interface FastifyGrammyBots {
     default: Bot<CustomContext>
     parent: Bot<CustomContext>
@@ -115,4 +115,71 @@ it('does not report managed readiness until Telegram initialization finishes', a
   await boot
   expect(bot.isInited()).toBe(true)
   expect(instance.grammy.status('default')).toEqual({ mode: 'webhook', state: 'running' })
+})
+
+it('rejects invalid managed startup budgets before boot', async () => {
+  const instance = app()
+  const bot = new Bot<CustomContext>('invalid-timeout', { botInfo })
+  instance.register(fastifyGrammy, { bot, mode: 'webhook', path: '/telegram', secretToken: 'secret', startupTimeoutMs: -1 })
+  await expect(instance.ready()).rejects.toThrow('startupTimeoutMs must be a finite positive number')
+})
+
+it('aborts initialization when the configured startup budget expires', async () => {
+  const instance = app()
+  const aborted = deferred<void>()
+  const transport = telegram({
+    getMe: ({ signal }) => new Promise((_, reject) => {
+      const abort = () => {
+        aborted.resolve()
+        reject(new DOMException('Aborted', 'AbortError'))
+      }
+      if (signal?.aborted)
+        abort()
+      else signal?.addEventListener('abort', abort, { once: true })
+    }),
+  })
+  const bot = new Bot<CustomContext>('timeout-init', { client: { fetch: transport.fetch } })
+  instance.register(fastifyGrammy, { bot, mode: 'webhook', path: '/telegram', secretToken: 'secret', startupTimeoutMs: 20 })
+  await expect(instance.ready()).rejects.toThrow('startup exceeded 20 ms')
+  await aborted.promise
+  expect(bot.isInited()).toBe(false)
+  expect(instance.grammy.status('default').state).toBe('failed')
+})
+
+it('reserves a managed Telegram token across independent scopes', async () => {
+  const instance = app()
+  instance.register(async (scope) => {
+    scope.register(fastifyGrammy, { name: 'local', bot: new Bot<CustomContext>('one-telegram-token', { botInfo }), mode: 'webhook', path: '/one', secretToken: 'secret' })
+  })
+  instance.register(async (scope) => {
+    scope.register(fastifyGrammy, { name: 'local', bot: new Bot<CustomContext>('one-telegram-token', { botInfo }), mode: 'polling' })
+  })
+  await expect(instance.ready()).rejects.toThrow('already has a managed registration')
+})
+
+it('aborts a later sibling startup when Fastify reaches its earlier host timeout', async () => {
+  const instance = Fastify({ pluginTimeout: 35 })
+  apps.push(instance)
+  const aborted = deferred<void>()
+  const transport = telegram({
+    getMe: ({ signal }) => new Promise((_, reject) => {
+      const abort = () => {
+        aborted.resolve()
+        reject(new DOMException('Aborted', 'AbortError'))
+      }
+      if (signal?.aborted)
+        abort()
+      else signal?.addEventListener('abort', abort, { once: true })
+    }),
+  })
+  const second = new Bot<CustomContext>('later-sibling', { client: { fetch: transport.fetch } })
+  instance.register(async (scope) => {
+    scope.register(fastifyGrammy, { name: 'local', bot: new Bot<CustomContext>('first-sibling', { botInfo }), mode: 'webhook', path: '/one', secretToken: 'secret', startupTimeoutMs: 1000 })
+  })
+  instance.register(async (scope) => {
+    scope.register(fastifyGrammy, { name: 'local', bot: second, mode: 'webhook', path: '/two', secretToken: 'secret', startupTimeoutMs: 1000 })
+  })
+  await expect(instance.ready()).rejects.toMatchObject({ code: 'FST_ERR_HOOK_TIMEOUT' })
+  await aborted.promise
+  expect(second.isInited()).toBe(false)
 })
