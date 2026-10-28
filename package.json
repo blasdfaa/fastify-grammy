@@ -39,13 +39,15 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "CHANGELOG.md",
+    "dist",
+    "docs/migration-0.2.0.md"
   ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm,cjs --target node22 --clean",
+    "build": "tsup src/index.ts --dts --format esm,cjs --target node22 --clean && node scripts/finalize-build.mjs",
     "dev": "vitest",
     "lint": "eslint .",
     "hooks:install": "lefthook install",
@@ -57,7 +59,8 @@
     "test": "pnpm build && pnpm test:unit && pnpm test:types && pnpm test:package",
     "test:unit": "vitest run",
     "test:types": "tsc --noEmit",
-    "test:package": "publint"
+    "test:package": "publint && pnpm test:consumer",
+    "test:consumer": "node scripts/test-consumers.mjs"
   },
   "peerDependencies": {
     "fastify": "^5.0.0"
@@ -76,6 +79,7 @@
     "eslint": "10.13.0",
     "fastify": "5.12.7",
     "lefthook": "2.2.2",
+    "node-fetch": "2.7.0",
     "publint": "0.3.25",
     "tsup": "9.0.0",
     "typescript": "6.0.3",

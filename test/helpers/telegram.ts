@@ -1,4 +1,7 @@
 import type { BotConfig, Context } from 'grammy'
+import nodeFetch, { Response } from 'node-fetch'
+
+type TelegramFetch = NonNullable<NonNullable<BotConfig<Context>['client']>['fetch']>
 
 export const botInfo = {
   id: 42,
@@ -28,15 +31,14 @@ export function deferred<T>() {
 export interface TelegramRequest {
   method: string
   payload: Record<string, unknown>
-  signal: AbortSignal | null | undefined
+  signal: NonNullable<Parameters<TelegramFetch>[1]>['signal']
 }
 export type TelegramHandler = (request: TelegramRequest) => unknown | Promise<unknown>
 
 /** Replace only Telegram's HTTP transport; the real Bot retains its full execution path. */
 export function telegram(handlers: Record<string, TelegramHandler> = {}) {
   const requests: TelegramRequest[] = []
-  type TelegramFetch = NonNullable<NonNullable<BotConfig<Context>['client']>['fetch']>
-  const fetch: TelegramFetch = async (url: Parameters<TelegramFetch>[0], init: Parameters<TelegramFetch>[1]) => {
+  const fetch: TelegramFetch = Object.assign(async (url: Parameters<TelegramFetch>[0], init: Parameters<TelegramFetch>[1]) => {
     const method = String(url).split('/').at(-1)!
     const payload: Record<string, unknown> = typeof init?.body === 'string'
       ? JSON.parse(init.body)
@@ -75,7 +77,7 @@ export function telegram(handlers: Record<string, TelegramHandler> = {}) {
       status: 200,
       headers: { 'content-type': 'application/json' },
     })
-  }
+  }, nodeFetch)
   return { fetch, requests }
 }
 

@@ -229,6 +229,9 @@ importers:
       lefthook:
         specifier: 2.2.2
         version: 2.2.2
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0
       publint:
         specifier: 0.3.25
         version: 0.3.25

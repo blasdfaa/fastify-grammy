@@ -32,12 +32,9 @@ function app() {
 
 it('provides the prepared default bot in manual mode without initializing it', async () => {
   const instance = app()
+  const transport = telegram()
   const bot = new Bot<CustomContext>('manual-token', {
-    client: {
-      fetch: async () => {
-        throw new Error('manual mode must not contact Telegram')
-      },
-    },
+    client: { fetch: transport.fetch },
   })
   instance.register(fastifyGrammy, { bot, mode: 'manual' })
   await instance.ready()
@@ -45,6 +42,71 @@ it('provides the prepared default bot in manual mode without initializing it', a
   expect(bot.isInited()).toBe(false)
   expect(instance.grammy.status('default')).toEqual({ mode: 'manual', state: 'manual' })
   await instance.close()
+  expect(transport.requests).toEqual([])
+})
+
+it('leaves externally started polling running when a manual registration closes', async () => {
+  const instance = app()
+  const transport = telegram()
+  const started = deferred<void>()
+  const bot = new Bot<CustomContext>('external-runner', {
+    botInfo,
+    client: { fetch: transport.fetch },
+  })
+  const lifetime = bot.start({
+    onStart: () => started.resolve(),
+  })
+  try {
+    await started.promise
+    instance.register(fastifyGrammy, { bot, mode: 'manual' })
+    await instance.ready()
+    await instance.close()
+    expect(bot.isRunning()).toBe(true)
+    expect(instance.grammy.status('default')).toEqual({ mode: 'manual', state: 'manual' })
+  }
+  finally {
+    await bot.stop()
+    await lifetime
+  }
+})
+
+it('retains exclusive Bot ownership until a managed close finishes draining', async () => {
+  const owner = app()
+  const contender = app()
+  const entered = deferred<void>()
+  const release = deferred<void>()
+  const transport = telegram({
+    getUpdates: ({ payload }) => payload.limit === 1
+      ? []
+      : [
+          { update_id: 1 },
+        ],
+  })
+  const bot = new Bot<CustomContext>('owned-until-drained', {
+    botInfo,
+    client: { fetch: transport.fetch },
+  })
+  bot.use(async () => {
+    entered.resolve()
+    await release.promise
+  })
+  owner.register(fastifyGrammy, { bot, mode: 'polling' })
+  await owner.ready()
+  await entered.promise
+  let closed = false
+  const closing = owner.close().then(() => {
+    closed = true
+  })
+  try {
+    await new Promise<void>(resolve => setImmediate(resolve))
+    expect(closed).toBe(false)
+    contender.register(fastifyGrammy, { bot, mode: 'manual' })
+    await expect(contender.ready()).rejects.toThrow('This Bot instance is already registered')
+  }
+  finally {
+    release.resolve()
+    await closing
+  }
 })
 
 it('inherits parent bots while keeping child and sibling registrations isolated', async () => {

@@ -2,7 +2,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "fastify start index.js -L -l -P -w"
+    "dev": "node index.js"
   },
   "dependencies": {
     "fastify": "5.12.7",

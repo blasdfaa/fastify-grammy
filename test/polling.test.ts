@@ -182,7 +182,7 @@ it('reports a later fatal polling error while leaving the HTTP server available'
   })
   apps.push(instance)
   instance.get('/health', () => ({ ok: true }))
-  const failedRequest = deferred<Response>()
+  const failedRequest = deferred<ReturnType<typeof telegramError>>()
   const notified = deferred<FastifyGrammyError>()
   const transport = telegram({
     getUpdates: () => failedRequest.promise,
