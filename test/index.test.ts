@@ -81,10 +81,9 @@ it('rejects one Bot instance registered twice even in independent scopes', async
 
 it('rejects missing mode rather than starting polling implicitly', async () => {
   const instance = app()
+  const bot = new Bot<CustomContext>('missing-mode')
   // @ts-expect-error mode is required at the public seam
-  instance.register(fastifyGrammy, {
-    bot: new Bot<CustomContext>('missing-mode'),
-  })
+  instance.register(fastifyGrammy, { bot })
   await expect(instance.ready()).rejects.toThrow('mode must be polling, webhook, or manual')
 })
 
