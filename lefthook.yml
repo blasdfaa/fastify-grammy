@@ -1,5 +1,5 @@
 pre-commit:
   commands:
-    check:
-      glob: '*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,vue}'
-      run: pnpm eslint --fix && git update-index --again
+    lint:
+      glob: '*.{js,ts,cjs,mjs,cts,mts,jsx,tsx,json,jsonc,yml,yaml,md}'
+      run: pnpm exec eslint {staged_files}

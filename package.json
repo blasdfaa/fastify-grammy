@@ -1,12 +1,28 @@
 {
   "name": "fastify-grammy",
   "type": "module",
-  "version": "0.1.0",
-  "packageManager": "pnpm@9.13.1",
-  "description": "",
-  "author": "",
+  "version": "0.2.0",
+  "packageManager": "pnpm@12.15.0",
+  "description": "Scoped grammY bot integration with Fastify lifecycle, polling, and webhooks.",
+  "author": "Viktor Zdorovtsev",
   "license": "MIT",
-  "keywords": [],
+  "homepage": "https://github.com/blasdfaa/fastify-grammy#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blasdfaa/fastify-grammy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blasdfaa/fastify-grammy/issues"
+  },
+  "keywords": [
+    "fastify",
+    "fastify-plugin",
+    "grammy",
+    "telegram",
+    "bot",
+    "webhook"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": {
@@ -19,41 +35,55 @@
       }
     }
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "CHANGELOG.md",
+    "dist",
+    "docs/migration-0.2.0.md"
   ],
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm,cjs --clean",
-    "dev": "vitest dev",
+    "build": "tsup src/index.ts --dts --format esm,cjs --target node22 --clean && node scripts/finalize-build.mjs",
+    "dev": "vitest",
     "lint": "eslint .",
-    "postinstall": "lefthook install",
+    "hooks:install": "lefthook install",
+    "check": "pnpm build && pnpm lint && pnpm test:unit && pnpm test:types && pnpm test:package",
     "prepack": "pnpm build",
-    "prepublishOnly": "pnpm lint && pnpm test",
-    "release": "pnpm test && bumpp && npm publish",
-    "test": "pnpm test:unit && pnpm test:types && pnpm test:package",
-    "test:unit": "vitest --run",
+    "prepublishOnly": "pnpm check",
+    "release": "pnpm check && bumpp --no-push && npm publish",
+    "release:notes": "changelogithub",
+    "test": "pnpm build && pnpm test:unit && pnpm test:types && pnpm test:package",
+    "test:unit": "vitest run",
     "test:types": "tsc --noEmit",
-    "test:package": "publint"
+    "test:package": "publint && pnpm test:consumer",
+    "test:consumer": "node scripts/test-consumers.mjs"
+  },
+  "peerDependencies": {
+    "fastify": "^5.0.0"
   },
   "dependencies": {
-    "@fastify/error": "^4.1.0",
-    "fastify-plugin": "5.0.1",
-    "grammy": "^1.35.1"
+    "@fastify/error": "^4.2.1",
+    "@types/node-fetch": "^2.6.13",
+    "fastify-plugin": "^6.0.1",
+    "grammy": "^1.46.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.9.1",
-    "@types/node": "^20.17.6",
-    "bumpp": "^9.8.1",
-    "changelogen": "^0.5.7",
-    "eslint": "^9.14.0",
-    "fastify": "5.1.0",
-    "lefthook": "1.8.2",
-    "publint": "^0.2.12",
-    "tsup": "^8.3.5",
-    "typescript": "5.6.3",
-    "vitest": "^2.1.5"
-  },
-  "resolutions": {
-    "fastify-grammy": "link:."
+    "@antfu/eslint-config": "10.0.0",
+    "@types/node": "22.20.5",
+    "bumpp": "12.3.0",
+    "changelogithub": "15.0.5",
+    "eslint": "10.13.0",
+    "fastify": "5.12.7",
+    "lefthook": "2.2.2",
+    "node-fetch": "2.7.0",
+    "publint": "0.3.25",
+    "tsup": "9.0.0",
+    "typescript": "6.0.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
   }
 }
